@@ -17,7 +17,7 @@ func main() {
 	defer file.Close()
 	scanner := bufio.NewScanner(file)
 	ans := 0
-	// ans2 := 0
+	ans2 := 0
 	grid := make([][]string, 0)
 	for scanner.Scan() {
 		line := scanner.Text()
@@ -62,6 +62,42 @@ func main() {
 		// fmt.Println()
 	}
 
+	flag := true
+	for flag {
+		flag = false
+		for r := 0; r < len(grid); r++ {
+			for c := 0; c < len(grid[r]); c++ {
+
+				if grid[r][c] != "@" {
+					continue
+				}
+
+				adj := 0
+
+				for _, d := range dirs {
+					nr := r + d[0]
+					nc := c + d[1]
+
+					if nr < 0 || nr >= len(grid) || nc < 0 || nc >= len(grid[r]) {
+						continue
+					}
+
+					if grid[nr][nc] == "@" {
+						adj++
+					}
+				}
+
+				if adj < 4 {
+					ans2++
+					grid[r][c] = "."
+					flag = true
+				}
+
+			}
+			// fmt.Println()
+		}
+	}
 	fmt.Println(ans)
+	fmt.Println(ans2)
 
 }
