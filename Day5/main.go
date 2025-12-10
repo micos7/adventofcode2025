@@ -4,9 +4,15 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
+
+type Interval struct {
+	From int64
+	To   int64
+}
 
 func main() {
 	file, err := os.Open("input.txt")
@@ -18,12 +24,8 @@ func main() {
 	defer file.Close()
 	scanner := bufio.NewScanner(file)
 	ans := 0
-	// ans2 := 0
+	ans2 := int64(0)
 
-	type Interval struct {
-		From int64
-		To   int64
-	}
 	ids := make([]int64, 0)
 
 	ranges := make([]Interval, 0)
@@ -43,13 +45,46 @@ func main() {
 
 	for _, id := range ids {
 		for _, r := range ranges {
+
 			if id >= r.From && id <= r.To {
 				ans++
+
 				break
 			}
 		}
 	}
 
-	fmt.Println(ans)
+	merged := mergeIntervals(ranges)
+	for _, r := range merged {
+		ans2 += r.To - r.From + 1
+	}
 
+	fmt.Println(ans, ans2)
+
+}
+
+func mergeIntervals(intervals []Interval) []Interval {
+	if len(intervals) == 0 {
+		return nil
+	}
+
+	sort.Slice(intervals, func(i, j int) bool {
+		return intervals[i].From < intervals[j].From
+	})
+
+	merged := []Interval{intervals[0]}
+
+	for _, curr := range intervals[1:] {
+		last := &merged[len(merged)-1]
+
+		if curr.From <= last.To {
+			if curr.To > last.To {
+				last.To = curr.To
+			}
+		} else {
+			merged = append(merged, curr)
+		}
+	}
+
+	return merged
 }
