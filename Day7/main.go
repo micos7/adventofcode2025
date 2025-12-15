@@ -41,10 +41,10 @@ func main() {
 	}
 
 	ans1 := 0
+	ans2 := 0
 
 	for r := startR + 1; r < len(grid); r++ {
 		next := map[int]bool{}
-
 		for c := range active {
 			if c < 0 || c >= len(grid[r]) {
 				continue
@@ -54,6 +54,7 @@ func main() {
 				ans1++
 				next[c-1] = true
 				next[c+1] = true
+
 			} else {
 				next[c] = true
 			}
@@ -65,5 +66,29 @@ func main() {
 		}
 	}
 
-	fmt.Println(ans1)
+	active2 := map[int]int{
+		startC: 1,
+	}
+
+	for r := startR + 1; r < len(grid); r++ {
+		next := map[int]int{}
+		for c, count := range active2 {
+			if c < 0 || c >= len(grid[r]) {
+				continue
+			}
+			if grid[r][c] == '^' {
+				next[c-1] += count
+				next[c+1] += count
+			} else {
+				next[c] += count
+			}
+		}
+		active2 = next
+	}
+
+	for _, count := range active2 {
+		ans2 += count
+	}
+
+	fmt.Println(ans1, ans2)
 }
