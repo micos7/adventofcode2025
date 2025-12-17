@@ -36,12 +36,6 @@ func main() {
 
 	n := len(points)
 
-	parent = make([]int, n)
-	rank = make([]int, n)
-	for i := 0; i < n; i++ {
-		parent[i] = i
-	}
-
 	edges := []Edge{}
 	for i := 0; i < n; i++ {
 		for j := i + 1; j < n; j++ {
@@ -57,13 +51,19 @@ func main() {
 		return edges[a].dist < edges[b].dist
 	})
 
-	connections := 0
+	parent = make([]int, n)
+	rank = make([]int, n)
+	for i := 0; i < n; i++ {
+		parent[i] = i
+	}
+
+	attempts := 0
 	for _, e := range edges {
-		if connections == 1000 {
+		if attempts == 1000 {
 			break
 		}
 		union(e.i, e.j)
-		connections++
+		attempts++
 	}
 
 	componentSize := map[int]int{}
@@ -78,9 +78,29 @@ func main() {
 	}
 
 	sort.Sort(sort.Reverse(sort.IntSlice(sizes)))
+	part1 := sizes[0] * sizes[1] * sizes[2]
 
-	result := sizes[0] * sizes[1] * sizes[2]
-	fmt.Println(result)
+	parent = make([]int, n)
+	rank = make([]int, n)
+	for i := 0; i < n; i++ {
+		parent[i] = i
+	}
+
+	components := n
+	part2 := 0
+
+	for _, e := range edges {
+		if union(e.i, e.j) {
+			components--
+			if components == 1 {
+				part2 = points[e.i].x * points[e.j].x
+				break
+			}
+		}
+	}
+
+	fmt.Println("Part 1:", part1)
+	fmt.Println("Part 2:", part2)
 }
 
 func squaredDistance(a, b Point) int {
@@ -97,11 +117,11 @@ func find(x int) int {
 	return parent[x]
 }
 
-func union(x, y int) {
+func union(x, y int) bool {
 	rootX := find(x)
 	rootY := find(y)
 	if rootX == rootY {
-		return
+		return false
 	}
 
 	if rank[rootX] < rank[rootY] {
@@ -112,4 +132,5 @@ func union(x, y int) {
 		parent[rootY] = rootX
 		rank[rootX]++
 	}
+	return true
 }
